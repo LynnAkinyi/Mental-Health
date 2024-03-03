@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mental Health Dashboard</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+
+      header {
+        background-color: #8a4c1d;
+        color: white;
+        text-align: center;
+        padding: 15px;
+        height: 10vh;
+      }
+
+      main {
+        display: flex;
+      }
+
+      nav {
+        background-color: #a79589;
+        color: white;
+        padding: 15px;
+        width: 200px;
+        height: 80vh;
+      }
+
+      nav a {
+        display: block;
+        color: white;
+        text-decoration: none;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+
+      nav a:hover {
+        background-color: #555;
+      }
+
+      section {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .dashboard-section {
+        display: flex;
+        gap: 20px;
+      }
+
+      .upcoming-events,
+      .notifications {
+        flex: 1;
+        background-color: #f6efe9;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        height: 30vh;
+      }
+
+      .recommended-articles {
+        flex: 1;
+        background-color: #f6efe9;
+        border-radius: 8px;
+        padding: 20px;
+        height: 30vh;
+      }
+      /* User Profile Popup Styles */
+
+      #userProfilePopup {
+        position: absolute;
+        margin: 0;
+        padding: 0;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+      }
+
+      .profile-page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .content__cover {
+        width: 100%;
+        height: 200px;
+        background-image: url("images/people.jpg");
+        background-size: cover;
+        background-position: center;
+        border-radius: 10px 10px 0 0;
+      }
+
+      .content__avatar {
+        width: 150px;
+        height: 150px;
+        margin-top: -75px;
+        background-image: url("images/balance.jpeg");
+        background-size: cover;
+        background-position: center;
+        border-radius: 50%;
+        border: 5px solid #fff;
+      }
+
+      .content__title {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .content__title h1 {
+        font-size: 36px;
+        margin-bottom: 10px;
+      }
+
+      .content__title p {
+        font-size: 18px;
+        color: #999;
+      }
+
+      .content__description {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .content__description p {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #666;
+      }
+
+      .content__social {
+        margin-top: 20px;
+      }
+
+      .content__social a {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+        background-color: #eee;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+        color: #333;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .content__social a:hover {
+        background-color: #333;
+        color: #fff;
+      }
+
+      .content__button {
+        margin-top: 20px;
+      }
+
+      .content__button a {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #333;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .content__button a:hover {
+        background-color: #fff;
+        color: #333;
+        border: 1px solid #333;
+      }
+
+      .content__settings {
+        margin-top: 20px;
+      }
+
+      .content__settings a {
+        display: inline-block;
+        padding: ;
+      }
+
+      .menu-container {
+        position: fixed;
+        top: 30px;
+        right: 50px;
+        z-index: 1000;
+        cursor: pointer;
+      }
+
+      .menu-icon {
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+      }
+
+      .menu-line {
+        width: 30px;
+        height: 4px;
+        background-color: #f6efe9;
+        margin: 6px 0;
+        transition: 0.4s;
+      }
+
+      .menu-options {
+        display: none;
+        position: absolute;
+        width: 100px;
+        top: 60px;
+        right: 40px;
+        background-color: #f6efe9;
+        color: #8a4c1d;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        padding: 10px;
+        z-index: 999;
+      }
+
+      .menu-option {
+        padding: 10px;
+        cursor: pointer;
+      }
+
+      .google-icon,
+      .twitter-icon,
+      .facebook-icon {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        margin: 0 5px;
+        cursor: pointer;
+        filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2));
+      }
+
+      .google-icon {
+        background: url("images/google.png") center/cover no-repeat;
+      }
+
+      .twitter-icon {
+        background: url("images/twitter (1).png") center/cover no-repeat;
+      }
+
+      .facebook-icon {
+        background: url("images/facebook.png") center/cover no-repeat;
+      }
+
+      h1,
+      h2 {
+        color: #333;
+      }
+
+      p {
+        color: #666;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Mental Health Dashboard</h1>
+    </header>
+
+    <main>
+      <nav>
+        <a href="#">Dashboard</a>
+        <a href="#" onclick="showUserProfile()">Profile</a>
+        <a href="#">Upcoming Events</a>
+        <a href="#">Notifications</a>
+        <a href="#">Recommended Articles</a>
+        <!-- Add more links as needed -->
+      </nav>
+
+      <section>
+        <div class="dashboard-section">
+          <div class="upcoming-events">
+            <h2>Upcoming Events</h2>
+            <p>Event 1 - Date</p>
+            <p>Event 2 - Date</p>
+            <!-- Add more upcoming events -->
+          </div>
+
+          <div class="notifications">
+            <h2>Notifications</h2>
+            <p>Notification 1</p>
+            <p>Notification 2</p>
+            <!-- Add more notifications -->
+          </div>
+        </div>
+
+        <div class="recommended-articles">
+          <h2>Recommended Articles</h2>
+          <p>Article 1</p>
+          <p>Article 2</p>
+          <!-- Add more recommended articles -->
+        </div>
+      </section>
+    </main>
+
+    <!-- User Profile Popup -->
+    <div id="userProfilePopup">
+      <div class="menu-container" onclick="toggleMenu()">
+        <div class="menu-icon">
+          <div class="menu-line"></div>
+          <div class="menu-line"></div>
+          <div class="menu-line"></div>
+        </div>
+        <div class="menu-options" id="menuOptions">
+          <div class="menu-option">Edit Profile</div>
+          <div class="menu-option">Settings</div>
+          <div class="menu-option">Privacy</div>
+          <div class="menu-option">Logout</div>
+          <!-- Add more options as needed -->
+        </div>
+      </div>
+
+      <script>
+        function toggleMenu() {
+          var menuOptions = document.getElementById("menuOptions");
+          menuOptions.style.display =
+            menuOptions.style.display === "block" ? "none" : "block";
+        }
+      </script>
+
+      <div class="content">
+        <div class="content__cover">
+          <!-- Cover image goes here -->
+        </div>
+        <div class="content__avatar">
+          <!-- Avatar image goes here -->
+        </div>
+        <div class="content__title">
+          <h1>John Doe</h1>
+          <p>Web Developer</p>
+        </div>
+        <div class="content__description">
+          <p>
+            Hi, I'm John Doe. I'm a web developer with over 5 years of
+            experience in the field. I specialize in building responsive and
+            user-friendly websites using HTML, CSS, and JavaScript.
+          </p>
+        </div>
+        <div class="content__social">
+          <a href="#" class="google-icon">
+            <!-- <img src="images/google.png" alt="logo" />--></a
+          >
+          <a href="#" class="twitter-icon">
+            <!-- <img src="images/twitter (1).png" alt="logo" />--></a
+          >
+          <a href="#" class="facebook-icon">
+            <!-- <img src="images/facebook.png" alt="logo"
+          />--></a
+          >
+        </div>
+        <div class="content__button">
+          <a href="#">Follow</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showUserProfile() {
+        document.getElementById("userProfilePopup").style.display = "flex";
+      }
+
+      function closeUserProfile() {
+        document.getElementById("userProfilePopup").style.display = "none";
+      }
+    </script>
+  </body>
+</html>

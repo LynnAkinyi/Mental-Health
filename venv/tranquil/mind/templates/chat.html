@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* styles.css */
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        .respondents-list {
+            width: 200px;
+            height: 100vh;
+            background-color: #F6EFE9;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 20px;
+        }
+        
+        .respondent {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        
+        .respondent:hover {
+            background-color: #f2f2f2;
+        }
+        
+        .active-respondent {
+            background-color: #ddd;
+        }
+        
+        .chat-container {
+            flex: 1;
+            max-width: calc(100% - 200px);
+            margin: 20px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        
+        .chat-box {
+            height: calc(100vh - 150px);
+            overflow-y: scroll;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        
+        .message {
+            border: 1px solid #A79589;
+            border-radius: 10px;
+            background-color: #f2f2f2;
+            padding: 10px;
+            margin-top: 15px;
+            position: relative;
+        }
+        
+        .message .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            color: #A79589;
+        }
+        
+        input[type="text"] {
+            width: calc(70% - 10px);
+            padding: 10px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        button {
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            color: #A79589;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="respondents-list">
+        <div class="respondent" data-id="1">John Doe</div>
+        <div class="respondent" data-id="2">Jane Smith</div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <input type="text" id="message-input" placeholder="Type your message..." disabled>
+        <button onclick="sendMessage()" disabled><span class="material-icons">send</span></button>
+    </div>
+    <script>
+        // script.js
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.querySelector('button');
+
+        function sendMessage() {
+            const respondentId = document.querySelector('.active-respondent').dataset.id;
+            const message = messageInput.value;
+            if (message.trim() !== '') {
+                const chatBox = document.getElementById('chat-box');
+                const newMessage = document.createElement('div');
+                newMessage.classList.add('message');
+                newMessage.textContent = message;
+
+                const deleteBtn = document.createElement('span');
+                deleteBtn.classList.add('material-icons', 'delete-btn');
+                deleteBtn.textContent = 'delete';
+                deleteBtn.addEventListener('click', function() {
+                    newMessage.remove();
+                    // Remove message from local storage
+                    const messages = JSON.parse(localStorage.getItem(`messages-${respondentId}`)) || [];
+                    const index = messages.indexOf(message);
+                    if (index !== -1) {
+                        messages.splice(index, 1);
+                        localStorage.setItem(`messages-${respondentId}`, JSON.stringify(messages));
+                    }
+                });
+                newMessage.appendChild(deleteBtn);
+
+                chatBox.appendChild(newMessage);
+                // Scroll to the bottom of the chat box
+                chatBox.scrollTop = chatBox.scrollHeight;
+                // Save message to local storage
+                const messages = JSON.parse(localStorage.getItem(`messages-${respondentId}`)) || [];
+                messages.push(message);
+                localStorage.setItem(`messages-${respondentId}`, JSON.stringify(messages));
+                messageInput.value = '';
+            }
+        }
+
+        const respondents = document.querySelectorAll('.respondent');
+        respondents.forEach(respondent => {
+            respondent.addEventListener('click', function() {
+                // Deactivate any currently active respondent
+                const activeRespondent = document.querySelector('.active-respondent');
+                if (activeRespondent) {
+                    activeRespondent.classList.remove('active-respondent');
+                }
+
+                // Set this clicked respondent as active
+                this.classList.add('active-respondent');
+
+                // Enable input field and send button
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+
+                // Update chat box with messages for this respondent
+                const respondentId = this.dataset.id;
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML = `Chat with ${this.textContent}`;
+                const messages = JSON.parse(localStorage.getItem(`messages-${respondentId}`)) || [];
+                messages.forEach(message => {
+                    const newMessage = document.createElement('div');
+                    newMessage.classList.add('message');
+                    newMessage.textContent = message;
+
+                    const deleteBtn = document.createElement('span');
+                    deleteBtn.classList.add('material-icons', 'delete-btn');
+                    deleteBtn.textContent = 'delete';
+                    deleteBtn.addEventListener('click', function() {
+                        newMessage.remove();
+                        // Remove message from local storage
+                        const index = messages.indexOf(message);
+                        if (index !== -1) {
+                            messages.splice(index, 1);
+                            localStorage.setItem(`messages-${respondentId}`, JSON.stringify(messages));
+                        }
+                    });
+                    newMessage.appendChild(deleteBtn);
+
+                    chatBox.appendChild(newMessage);
+                });
+            });
+        });
+
+        // Function to send message when Enter key is pressed
+        document.getElementById('message-input').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+
+</html>
